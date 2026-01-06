@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boda Belén & Kevin</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fuentes Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@200;400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        .font-script { font-family: 'Great Vibes', cursive; }
+        .font-serif { font-family: 'Cormorant Garamond', serif; }
+        .font-body { font-family: 'Montserrat', sans-serif; }
+        
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-spin-slow { animation: spin 4s linear infinite; }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-[#faf7f2] text-[#5c5c5c]">
+    <div id="root"></div>
+
+    <!-- React y ReactDOM -->
+    <script type="importmap">
+        {
+            "imports": {
+                "react": "https://esm.sh/react@18.2.0",
+                "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+                "lucide-react": "https://esm.sh/lucide-react@0.263.1"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import React, { useState, useEffect } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import { Heart, Calendar, MapPin, Music, Clock, Gift, CheckCircle, Navigation } from 'lucide-react';
+
+        const WeddingInvitation = () => {
+            const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+            const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+            const [rsvpName, setRsvpName] = useState('');
+            const [rsvpGuests, setRsvpGuests] = useState(1);
+            const [rsvpSent, setRsvpSent] = useState(false);
+
+            // FECHA DE LA BODA
+            const weddingDate = new Date("2026-10-24T16:00:00").getTime();
+
+            useEffect(() => {
+                const timer = setInterval(() => {
+                    const now = new Date().getTime();
+                    const distance = weddingDate - now;
+
+                    if (distance < 0) {
+                        clearInterval(timer);
+                    } else {
+                        setTimeLeft({
+                            days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+                            hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                            minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+                            seconds: Math.floor((distance % (1000 * 60)) / 1000),
+                        });
+                    }
+                }, 1000);
+                return () => clearInterval(timer);
+            }, []);
+
+            const toggleMusic = () => {
+                setIsMusicPlaying(!isMusicPlaying);
+            };
+
+            const handleRSVP = (e) => {
+                e.preventDefault();
+                setTimeout(() => {
+                    setRsvpSent(true);
+                }, 1000);
+            };
+
+            const copyBankInfo = () => {
+                navigator.clipboard.writeText("123456789 - Banco Unión");
+                alert("Número de cuenta copiado al portapapeles");
+            };
+
+            return React.createElement(
+                'div',
+                { className: "min-h-screen font-sans selection:bg-rose-200" },
+                // Botón Música
+                React.createElement('button', {
+                    onClick: toggleMusic,
+                    className: `fixed bottom-6 right-6 z-50 p-3 rounded-full shadow-xl transition-all duration-500 ${isMusicPlaying ? 'bg-rose-400 text-white animate-spin-slow' : 'bg-white text-rose-400'}`,
+                    title: isMusicPlaying ? "Pausar Música" : "Reproducir Música"
+                }, React.createElement(Music, { size: 24 })),
+
+                // Hero Section
+                React.createElement('header', { className: "relative h-screen flex flex-col justify-center items-center text-center overflow-hidden" },
+                    React.createElement('div', { className: "absolute inset-0 z-0" },
+                        React.createElement('img', { 
+                            src: "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80", 
+                            alt: "Fondo Boda", 
+                            className: "w-full h-full object-cover opacity-30" 
+                        }),
+                        React.createElement('div', { className: "absolute inset-0 bg-gradient-to-b from-[#faf7f2]/0 via-[#faf7f2]/20 to-[#faf7f2]" })
+                    ),
+                    React.createElement('div', { className: "relative z-10 p-6 animate-float" },
+                        React.createElement('p', { className: "font-body tracking-[0.3em] text-sm uppercase mb-4 text-stone-500" }, "¡Nos Casamos!"),
+                        React.createElement('h1', { className: "font-script text-7xl md:text-9xl text-stone-800 mb-2 leading-tight" },
+                            "Belén ", React.createElement('span', { className: "text-rose-400" }, "&"), " Kevin"
+                        ),
+                        React.createElement('div', { className: "w-16 h-0.5 bg-rose-400 mx-auto my-6" }),
+                        React.createElement('p', { className: "font-serif text-2xl md:text-3xl italic text-stone-600" }, "24 de Octubre, 2026")
+                    ),
+                    React.createElement('div', { className: "absolute bottom-10 animate-bounce text-rose-400" },
+                        React.createElement(Heart, { size: 32, fill: "currentColor", className: "opacity-60" })
+                    )
+                ),
+
+                // Navegación
+                React.createElement('nav', { className: "sticky top-0 z-40 bg-[#faf7f2]/90 backdrop-blur-md shadow-sm border-b border-stone-100 py-4" },
+                    React.createElement('div', { className: "flex justify-center space-x-6 md:space-x-12 font-body text-xs md:text-sm uppercase tracking-widest text-stone-500" },
+                        React.createElement('button', { onClick: () => document.getElementById('historia').scrollIntoView({behavior: 'smooth'}), className: "hover:text-rose-400 transition-colors" }, "Historia"),
+                        React.createElement('button', { onClick: () => document.getElementById('detalles').scrollIntoView({behavior: 'smooth'}), className: "hover:text-rose-400 transition-colors" }, "Detalles"),
+                        React.createElement('button', { onClick: () => document.getElementById('rsvp').scrollIntoView({behavior: 'smooth'}), className: "hover:text-rose-400 transition-colors font-bold text-rose-500" }, "Confirmar")
+                    )
+                ),
+
+                React.createElement('main', { className: "max-w-4xl mx-auto px-6 py-12 space-y-24" },
+                    
+                    // Historia
+                    React.createElement('section', { id: "historia", className: "text-center space-y-6 scroll-mt-24" },
+                        React.createElement('p', { className: "font-serif text-2xl md:text-3xl italic text-stone-600 leading-relaxed max-w-2xl mx-auto" },
+                            "\"El amor es paciente, es bondadoso. El amor no tiene envidia, el amor no es jactancioso, no se envanece.\""
+                        ),
+                        React.createElement('p', { className: "font-body text-xs tracking-widest text-stone-400 uppercase" }, "- 1 Corintios 13:4 -")
+                    ),
+
+                    // Cuenta Regresiva
+                    React.createElement('section', { className: "bg-white rounded-2xl p-8 shadow-sm border border-stone-100 text-center" },
+                        React.createElement('h3', { className: "font-body tracking-widest uppercase text-stone-400 mb-8" }, "Falta muy poco"),
+                        React.createElement('div', { className: "grid grid-cols-4 gap-4 max-w-lg mx-auto" },
+                            [
+                                { label: 'Días', value: timeLeft.days },
+                                { label: 'Horas', value: timeLeft.hours },
+                                { label: 'Minutos', value: timeLeft.minutes },
+                                { label: 'Segundos', value: timeLeft.seconds }
+                            ].map((item, index) => 
+                                React.createElement('div', { key: index, className: "flex flex-col items-center" },
+                                    React.createElement('span', { className: "font-serif text-3xl md:text-5xl text-stone-800 font-semibold mb-2" }, item.value),
+                                    React.createElement('span', { className: "font-body text-[10px] md:text-xs uppercase tracking-widest text-stone-400" }, item.label)
+                                )
+                            )
+                        )
+                    ),
+
+                    // Detalles
+                    React.createElement('section', { id: "detalles", className: "grid md:grid-cols-2 gap-12 scroll-mt-24" },
+                        // Ceremonia
+                        React.createElement('div', { className: "text-center space-y-4" },
+                            React.createElement('div', { className: "w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4 text-rose-400" },
+                                React.createElement(Calendar, { size: 32 })
+                            ),
+                            React.createElement('h3', { className: "font-serif text-3xl text-stone-800" }, "La Ceremonia"),
+                            React.createElement('p', { className: "font-body text-sm uppercase tracking-widest" }, "Sábado, 24 de Octubre - 16:00 Hrs"),
+                            React.createElement('p', { className: "font-serif text-lg text-stone-600 px-8" }, 
+                                "Iglesia La Sagrada Familia", React.createElement('br'), "Av. Principal #123"
+                            ),
+                            React.createElement('button', { className: "inline-flex items-center text-rose-500 font-body text-xs font-bold uppercase tracking-widest hover:underline mt-2 justify-center w-full" },
+                                React.createElement(MapPin, { size: 14, className: "mr-1" }), " Ver Mapa"
+                            )
+                        ),
+                        // Recepción
+                        React.createElement('div', { className: "text-center space-y-4" },
+                            React.createElement('div', { className: "w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4 text-rose-400" },
+                                React.createElement(Music, { size: 32 })
+                            ),
+                            React.createElement('h3', { className: "font-serif text-3xl text-stone-800" }, "La Recepción"),
+                            React.createElement('p', { className: "font-body text-sm uppercase tracking-widest" }, "Sábado, 24 de Octubre - 18:30 Hrs"),
+                            React.createElement('p', { className: "font-serif text-lg text-stone-600 px-8" }, 
+                                "Salón de Eventos \"El Ensueño\"", React.createElement('br'), "Zona Norte, Calle 5"
+                            ),
+                            React.createElement('button', { className: "inline-flex items-center text-rose-500 font-body text-xs font-bold uppercase tracking-widest hover:underline mt-2 justify-center w-full" },
+                                React.createElement(MapPin, { size: 14, className: "mr-1" }), " Ver Mapa"
+                            )
+                        )
+                    ),
+
+                    // Itinerario
+                    React.createElement('section', { className: "relative" },
+                        React.createElement('div', { className: "absolute left-1/2 transform -translate-x-1/2 h-full w-px bg-stone-200" }),
+                        React.createElement('h3', { className: "font-script text-5xl text-center text-stone-300 mb-12 relative z-10 bg-[#faf7f2] inline-block px-4 left-1/2 transform -translate-x-1/2" }, "Itinerario"),
+                        React.createElement('div', { className: "space-y-12 relative z-10" },
+                            [
+                                { time: '16:00', event: 'Ceremonia Religiosa', icon: Heart },
+                                { time: '17:30', event: 'Sesión de Fotos', icon: Navigation },
+                                { time: '18:30', event: 'Recepción y Brindis', icon: Music },
+                                { time: '20:00', event: 'Cena', icon: Clock },
+                                { time: '21:30', event: 'Fiesta', icon: Music }
+                            ].map((item, idx) => 
+                                React.createElement('div', { key: idx, className: `flex items-center ${idx % 2 === 0 ? 'flex-row' : 'flex-row-reverse'} justify-center w-full` },
+                                    React.createElement('div', { className: `w-5/12 text-center ${idx % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}` },
+                                        React.createElement('h4', { className: "font-serif text-xl text-stone-800" }, item.event),
+                                        React.createElement('p', { className: "font-body text-sm text-stone-500" }, item.time)
+                                    ),
+                                    React.createElement('div', { className: "w-8 h-8 bg-rose-400 rounded-full border-4 border-[#faf7f2] flex items-center justify-center text-white shadow-md" },
+                                        React.createElement(item.icon, { size: 16 })
+                                    ),
+                                    React.createElement('div', { className: "w-5/12" })
+                                )
+                            )
+                        )
+                    ),
+
+                    // Regalos
+                    React.createElement('section', { className: "grid md:grid-cols-2 gap-8 bg-white p-8 rounded-2xl shadow-sm border border-stone-100" },
+                        React.createElement('div', { className: "text-center" },
+                            React.createElement('h4', { className: "font-body uppercase tracking-widest text-sm text-stone-400 mb-2" }, "Código de Vestimenta"),
+                            React.createElement('p', { className: "font-serif text-xl text-stone-800" }, "Formal / Etiqueta"),
+                            React.createElement('p', { className: "text-sm text-stone-500 mt-2" }, "Rogamos evitar el color blanco.")
+                        ),
+                        React.createElement('div', { className: "text-center border-t md:border-t-0 md:border-l border-stone-100 pt-6 md:pt-0 md:pl-6" },
+                            React.createElement('h4', { className: "font-body uppercase tracking-widest text-sm text-stone-400 mb-2" }, "Mesa de Regalos"),
+                            React.createElement('p', { className: "font-serif text-lg text-stone-600 mb-3" }, "Su presencia es nuestro mayor regalo. Si desean tener un detalle con nosotros:"),
+                            React.createElement('button', { onClick: copyBankInfo, className: "inline-flex items-center gap-2 bg-stone-100 px-4 py-2 rounded-lg hover:bg-rose-50 hover:text-rose-500 transition-colors mx-auto" },
+                                React.createElement(Gift, { size: 18 }),
+                                React.createElement('span', { className: "font-body text-xs font-bold uppercase" }, "Ver Datos Bancarios")
+                            )
+                        )
+                    ),
+
+                    // RSVP
+                    React.createElement('section', { id: "rsvp", className: "bg-white rounded-3xl shadow-xl overflow-hidden max-w-2xl mx-auto scroll-mt-24" },
+                        React.createElement('div', { className: "bg-rose-400 p-6 text-center text-white" },
+                            React.createElement('h3', { className: "font-script text-5xl mb-2" }, "Confirmar Asistencia"),
+                            React.createElement('p', { className: "font-body text-xs uppercase tracking-widest opacity-90" }, "Por favor confirmar antes del 1 de Octubre")
+                        ),
+                        React.createElement('div', { className: "p-8 md:p-10" },
+                            !rsvpSent ? 
+                                React.createElement('form', { onSubmit: handleRSVP, className: "space-y-6" },
+                                    React.createElement('div', null,
+                                        React.createElement('label', { className: "block font-body text-xs uppercase tracking-widest text-stone-500 mb-2" }, "Nombre Completo"),
+                                        React.createElement('input', { 
+                                            type: "text", required: true, value: rsvpName, onChange: (e) => setRsvpName(e.target.value),
+                                            className: "w-full border-b border-stone-300 py-2 focus:outline-none focus:border-rose-400 font-serif text-lg bg-transparent transition-colors",
+                                            placeholder: "Escribe tu nombre y apellido"
+                                        })
+                                    ),
+                                    React.createElement('div', null,
+                                        React.createElement('label', { className: "block font-body text-xs uppercase tracking-widest text-stone-500 mb-2" }, "Número de invitados"),
+                                        React.createElement('select', { 
+                                            value: rsvpGuests, onChange: (e) => setRsvpGuests(e.target.value),
+                                            className: "w-full border-b border-stone-300 py-2 focus:outline-none focus:border-rose-400 font-serif text-lg bg-transparent cursor-pointer"
+                                        },
+                                            [1, 2, 3, 4, 5].map(num => React.createElement('option', { key: num, value: num }, `${num} Persona${num > 1 ? 's' : ''}`))
+                                        )
+                                    ),
+                                    React.createElement('div', null,
+                                        React.createElement('label', { className: "block font-body text-xs uppercase tracking-widest text-stone-500 mb-2" }, "Mensaje (Opcional)"),
+                                        React.createElement('textarea', { 
+                                            rows: 3,
+                                            className: "w-full border border-stone-200 rounded-lg p-3 focus:outline-none focus:border-rose-400 font-serif text-stone-600 bg-stone-50",
+                                            placeholder: "Déjanos tus buenos deseos..."
+                                        })
+                                    ),
+                                    React.createElement('button', { 
+                                        type: "submit",
+                                        className: "w-full bg-stone-800 text-white font-body text-sm uppercase tracking-widest py-4 hover:bg-rose-400 transition-all duration-300 transform hover:-translate-y-1 shadow-lg"
+                                    }, "Enviar Confirmación")
+                                )
+                            : 
+                                React.createElement('div', { className: "text-center py-10 animate-fade-in" },
+                                    React.createElement('div', { className: "w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500" },
+                                        React.createElement(CheckCircle, { size: 40 })
+                                    ),
+                                    React.createElement('h3', { className: "font-serif text-3xl text-stone-800 mb-2" }, `¡Gracias ${rsvpName.split(' ')[0]}!`),
+                                    React.createElement('p', { className: "text-stone-500 font-body" }, "Hemos recibido tu confirmación."),
+                                    React.createElement('p', { className: "text-rose-400 font-script text-3xl mt-6" }, "¡Nos vemos pronto!")
+                                )
+                        )
+                    ),
+                    
+                    // Footer
+                    React.createElement('footer', { className: "bg-stone-800 text-stone-400 py-12 text-center" },
+                        React.createElement('h2', { className: "font-script text-5xl text-white mb-4" }, "B & K"),
+                        React.createElement('p', { className: "font-body text-xs uppercase tracking-widest mb-8" }, "Con amor, esperamos verte"),
+                        React.createElement('p', { className: "text-xs opacity-50" }, "© 2026 Belén y Kevin")
+                    )
+                )
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(React.createElement(WeddingInvitation));
+    </script>
+</body>
+</html>
