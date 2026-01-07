@@ -175,7 +175,7 @@
                         React.createElement('p', { className: "font-body text-xs tracking-widest text-stone-400 uppercase" }, "- 1 Corintios 13:4 -")
                     ),
 
-                    // NUEVA SECCIÓN: La Pedida de Mano (Lado a Lado)
+                    // NUEVA SECCIÓN: La Pedida de Mano (Lado a Lado SIEMPRE)
                     React.createElement('section', { className: "text-center scroll-mt-24" },
                         React.createElement('div', { className: "mb-8" },
                             React.createElement('div', { className: "w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4 text-rose-400" },
@@ -185,31 +185,31 @@
                             React.createElement('h3', { className: "font-script text-4xl md:text-5xl text-stone-800 mb-2" }, "El Momento del Sí"),
                         ),
                         
-                        // Grid para las dos fotos lado a lado con estilo polaroid
-                        React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-3xl mx-auto" },
-                             // Foto Novio con anillo (Izquierda en desktop)
-                             React.createElement('div', { className: "group bg-white p-3 md:p-4 shadow-lg rounded-lg transform md:rotate-[-2deg] hover:rotate-0 transition-all duration-500 hover:z-10 hover:shadow-xl" },
+                        // Grid modificado: grid-cols-2 siempre (en móvil también) para verlas juntas
+                        React.createElement('div', { className: "grid grid-cols-2 gap-4 md:gap-8 max-w-3xl mx-auto" },
+                             // Foto BELÉN (Izquierda) - Antes estaba Kevin
+                             React.createElement('div', { className: "group bg-white p-2 md:p-4 shadow-lg rounded-lg transform md:rotate-[-2deg] hover:rotate-0 transition-all duration-500 hover:z-10 hover:shadow-xl" },
                                 React.createElement('div', { className: "overflow-hidden rounded aspect-[4/5] relative" },
                                     React.createElement('img', { 
-                                        src: proposalImages.groom, 
-                                        alt: "El novio entregando el anillo",
+                                        src: proposalImages.bride, // Ahora Belén
+                                        alt: "Belén dice Sí",
                                         className: "w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                                     }),
                                      React.createElement('div', { className: "absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" })
                                 ),
-                                React.createElement('p', { className: "font-script text-2xl text-stone-600 mt-4" }, "Kevin propone...")
+                                React.createElement('p', { className: "font-script text-lg md:text-2xl text-stone-600 mt-3 md:mt-4" }, "Belén dice ¡Sí!")
                             ),
-                            // Foto Novia sorprendida (Derecha en desktop)
-                            React.createElement('div', { className: "group bg-white p-3 md:p-4 shadow-lg rounded-lg transform md:rotate-[2deg] hover:rotate-0 transition-all duration-500 hover:z-10 hover:shadow-xl mt-4 md:mt-0" },
+                            // Foto KEVIN (Derecha) - Antes estaba Belén
+                            React.createElement('div', { className: "group bg-white p-2 md:p-4 shadow-lg rounded-lg transform md:rotate-[2deg] hover:rotate-0 transition-all duration-500 hover:z-10 hover:shadow-xl" },
                                 React.createElement('div', { className: "overflow-hidden rounded aspect-[4/5] relative" },
                                     React.createElement('img', { 
-                                        src: proposalImages.bride, 
-                                        alt: "La novia sorprendida",
+                                        src: proposalImages.groom, // Ahora Kevin
+                                        alt: "Kevin propone",
                                         className: "w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                                     }),
                                     React.createElement('div', { className: "absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" })
                                 ),
-                                React.createElement('p', { className: "font-script text-2xl text-stone-600 mt-4" }, "...y Belén dice ¡Sí!")
+                                React.createElement('p', { className: "font-script text-lg md:text-2xl text-stone-600 mt-3 md:mt-4" }, "Kevin propone...")
                             )
                         )
                     ),
