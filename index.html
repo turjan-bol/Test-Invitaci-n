@@ -50,7 +50,6 @@
     <script type="module">
         import React, { useState, useEffect, useRef } from 'react';
         import { createRoot } from 'react-dom/client';
-        // Se cambió Ring por Gem (Diamante) ya que Ring no existe en esta versión de lucide
         import { Heart, Calendar, MapPin, Music, Clock, Gift, CheckCircle, Navigation, Camera, Gem } from 'lucide-react';
 
         const WeddingInvitation = () => {
@@ -67,19 +66,21 @@
             const weddingDate = new Date("2026-10-24T16:00:00").getTime();
 
             // URLs de imágenes y música (Rutas relativas para GitHub)
-            const heroImage = "./portada.png"; // Foto Novios Portada
-            const musicUrl = "./audio.mpeg";   // Archivo de música actualizado
+            const heroImage = "./portada.png"; 
+            // CAMBIO IMPORTANTE: Usamos .mp3 por compatibilidad. 
+            // Por favor renombra tu archivo en GitHub a "audio.mp3"
+            const musicUrl = "./audio.mp3";   
             
             const proposalImages = {
-                bride: "./img51.png", // Novia sorprendida
-                groom: "./img52.png"  // Novio con anillo
+                bride: "./img51.png", 
+                groom: "./img52.png" 
             };
 
             const galleryImages = [
-                "./img1.png", // Foto galería 1
-                "./img2.png", // Foto galería 2
-                "./img3.png", // Foto galería 3
-                "./img4.png"  // Foto galería 4
+                "./img1.png", 
+                "./img2.png", 
+                "./img3.png", 
+                "./img4.png"  
             ];
 
             useEffect(() => {
@@ -116,7 +117,8 @@
 
                     // Fade In (Al inicio)
                     if (currentTime < fadeDuration) {
-                        audio.volume = currentTime / fadeDuration;
+                        // Evitamos dividir por 0 si algo raro pasa
+                        audio.volume = Math.min(1, currentTime / fadeDuration);
                     }
                     // Fade Out (Al final)
                     else if (currentTime > duration - fadeDuration) {
@@ -132,8 +134,8 @@
                 // Lógica de Loop Manual para asegurar el Fade In al reiniciar
                 const handleEnded = () => {
                     audio.currentTime = 0;
-                    audio.volume = 0; // Reiniciar volumen a 0
-                    audio.play();
+                    audio.volume = 0; // Reiniciar volumen a 0 para el fade in
+                    audio.play().catch(e => console.error("Error en loop:", e));
                 };
 
                 audio.addEventListener('timeupdate', handleTimeUpdate);
@@ -148,7 +150,7 @@
             const toggleMusic = () => {
                 if (audioRef.current) {
                     if (isMusicPlaying) {
-                        // Fade out rápido al pausar manualmente
+                        // Al pausar manualmente, hacemos un fade out rápido para que no sea brusco
                         const fadeOutInterval = setInterval(() => {
                             if (audioRef.current.volume > 0.1) {
                                 audioRef.current.volume -= 0.1;
@@ -159,14 +161,20 @@
                             }
                         }, 100);
                     } else {
-                        // Iniciar con volumen 0
-                        audioRef.current.volume = 0;
+                        // Al reproducir, iniciamos con volumen bajo y dejamos que el useEffect lo suba
+                        audioRef.current.volume = 0; 
                         audioRef.current.play().then(() => {
                             setIsMusicPlaying(true);
-                            // El useEffect se encargará del Fade In basado en el tiempo
                         }).catch(error => {
-                            console.log("Error al reproducir audio:", error);
-                            alert("Toca la pantalla para permitir la reproducción de audio");
+                            console.error("Error detallado:", error);
+                            // Mensaje de error más útil
+                            if(error.name === "NotSupportedError") {
+                                alert("Error: El formato de audio no es compatible. Asegúrate de que sea un archivo .mp3 válido.");
+                            } else if (error.name === "NotAllowedError") {
+                                alert("Por favor interactúa con la página antes de reproducir.");
+                            } else {
+                                alert("No se pudo reproducir el audio. Verifica que el archivo 'audio.mp3' esté subido en GitHub.");
+                            }
                         });
                     }
                 }
@@ -189,7 +197,6 @@
                 { className: "min-h-screen font-sans selection:bg-rose-200" },
                 
                 // Elemento de Audio Oculto
-                // Nota: Quitamos el atributo 'loop' nativo para manejar el loop manualmente y controlar el volumen
                 React.createElement('audio', { 
                     ref: audioRef, 
                     src: musicUrl, 
