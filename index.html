@@ -48,7 +48,7 @@
     </script>
 
     <script type="module">
-        import React, { useState, useEffect } from 'react';
+        import React, { useState, useEffect, useRef } from 'react';
         import { createRoot } from 'react-dom/client';
         // Se cambió Ring por Gem (Diamante) ya que Ring no existe en esta versión de lucide
         import { Heart, Calendar, MapPin, Music, Clock, Gift, CheckCircle, Navigation, Camera, Gem } from 'lucide-react';
@@ -59,12 +59,16 @@
             const [rsvpName, setRsvpName] = useState('');
             const [rsvpGuests, setRsvpGuests] = useState(1);
             const [rsvpSent, setRsvpSent] = useState(false);
+            
+            // Referencia al audio para controlarlo
+            const audioRef = useRef(null);
 
             // FECHA DE LA BODA
             const weddingDate = new Date("2026-10-24T16:00:00").getTime();
 
-            // URLs de imágenes (Rutas relativas para GitHub)
+            // URLs de imágenes y música (Rutas relativas para GitHub)
             const heroImage = "./portada.png"; // Foto Novios Portada
+            const musicUrl = "./audio.mpeg";   // Archivo de música actualizado
             
             const proposalImages = {
                 bride: "./img51.png", // Novia sorprendida
@@ -97,8 +101,75 @@
                 return () => clearInterval(timer);
             }, []);
 
+            // Efecto para manejar el Fading (Fade In / Fade Out)
+            useEffect(() => {
+                const audio = audioRef.current;
+                if (!audio) return;
+
+                const fadeDuration = 10; // 10 segundos de transición
+
+                const handleTimeUpdate = () => {
+                    const duration = audio.duration;
+                    const currentTime = audio.currentTime;
+                    
+                    if (isNaN(duration)) return;
+
+                    // Fade In (Al inicio)
+                    if (currentTime < fadeDuration) {
+                        audio.volume = currentTime / fadeDuration;
+                    }
+                    // Fade Out (Al final)
+                    else if (currentTime > duration - fadeDuration) {
+                        const remaining = duration - currentTime;
+                        audio.volume = Math.max(0, remaining / fadeDuration);
+                    }
+                    // Volumen normal en el medio
+                    else {
+                        audio.volume = 1;
+                    }
+                };
+
+                // Lógica de Loop Manual para asegurar el Fade In al reiniciar
+                const handleEnded = () => {
+                    audio.currentTime = 0;
+                    audio.volume = 0; // Reiniciar volumen a 0
+                    audio.play();
+                };
+
+                audio.addEventListener('timeupdate', handleTimeUpdate);
+                audio.addEventListener('ended', handleEnded);
+
+                return () => {
+                    audio.removeEventListener('timeupdate', handleTimeUpdate);
+                    audio.removeEventListener('ended', handleEnded);
+                };
+            }, []);
+
             const toggleMusic = () => {
-                setIsMusicPlaying(!isMusicPlaying);
+                if (audioRef.current) {
+                    if (isMusicPlaying) {
+                        // Fade out rápido al pausar manualmente
+                        const fadeOutInterval = setInterval(() => {
+                            if (audioRef.current.volume > 0.1) {
+                                audioRef.current.volume -= 0.1;
+                            } else {
+                                clearInterval(fadeOutInterval);
+                                audioRef.current.pause();
+                                setIsMusicPlaying(false);
+                            }
+                        }, 100);
+                    } else {
+                        // Iniciar con volumen 0
+                        audioRef.current.volume = 0;
+                        audioRef.current.play().then(() => {
+                            setIsMusicPlaying(true);
+                            // El useEffect se encargará del Fade In basado en el tiempo
+                        }).catch(error => {
+                            console.log("Error al reproducir audio:", error);
+                            alert("Toca la pantalla para permitir la reproducción de audio");
+                        });
+                    }
+                }
             };
 
             const handleRSVP = (e) => {
@@ -116,6 +187,15 @@
             return React.createElement(
                 'div',
                 { className: "min-h-screen font-sans selection:bg-rose-200" },
+                
+                // Elemento de Audio Oculto
+                // Nota: Quitamos el atributo 'loop' nativo para manejar el loop manualmente y controlar el volumen
+                React.createElement('audio', { 
+                    ref: audioRef, 
+                    src: musicUrl, 
+                    preload: "auto"
+                }),
+
                 // Botón Música
                 React.createElement('button', {
                     onClick: toggleMusic,
