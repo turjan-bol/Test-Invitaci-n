@@ -17,6 +17,7 @@
         
         .animate-float { animation: float 6s ease-in-out infinite; }
         .animate-spin-slow { animation: spin 4s linear infinite; }
+        .animate-fade-up { animation: fadeUp 1s ease-out forwards; opacity: 0; transform: translateY(20px); }
         
         @keyframes float {
             0% { transform: translateY(0px); }
@@ -26,6 +27,9 @@
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
+        }
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -46,7 +50,8 @@
     <script type="module">
         import React, { useState, useEffect } from 'react';
         import { createRoot } from 'react-dom/client';
-        import { Heart, Calendar, MapPin, Music, Clock, Gift, CheckCircle, Navigation } from 'lucide-react';
+        // Se cambió Ring por Gem (Diamante) ya que Ring no existe en esta versión de lucide
+        import { Heart, Calendar, MapPin, Music, Clock, Gift, CheckCircle, Navigation, Camera, Gem } from 'lucide-react';
 
         const WeddingInvitation = () => {
             const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -57,6 +62,21 @@
 
             // FECHA DE LA BODA
             const weddingDate = new Date("2026-10-24T16:00:00").getTime();
+
+            // URLs de imágenes (Rutas relativas para GitHub)
+            const heroImage = "./portada.png"; // Foto Novios Portada
+            
+            const proposalImages = {
+                bride: "./img51.png", // Novia sorprendida
+                groom: "./img52.png"  // Novio con anillo
+            };
+
+            const galleryImages = [
+                "./img1.png", // Foto galería 1
+                "./img2.png", // Foto galería 2
+                "./img3.png", // Foto galería 3
+                "./img4.png"  // Foto galería 4
+            ];
 
             useEffect(() => {
                 const timer = setInterval(() => {
@@ -103,17 +123,26 @@
                     title: isMusicPlaying ? "Pausar Música" : "Reproducir Música"
                 }, React.createElement(Music, { size: 24 })),
 
-                // Hero Section
-                React.createElement('header', { className: "relative h-screen flex flex-col justify-center items-center text-center overflow-hidden" },
+                // Hero Section Modificado con Foto de Portada
+                React.createElement('header', { className: "relative min-h-screen flex flex-col justify-center items-center text-center overflow-hidden py-12" },
                     React.createElement('div', { className: "absolute inset-0 z-0" },
                         React.createElement('img', { 
                             src: "https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80", 
                             alt: "Fondo Boda", 
-                            className: "w-full h-full object-cover opacity-30" 
+                            className: "w-full h-full object-cover opacity-20" 
                         }),
-                        React.createElement('div', { className: "absolute inset-0 bg-gradient-to-b from-[#faf7f2]/0 via-[#faf7f2]/20 to-[#faf7f2]" })
+                        React.createElement('div', { className: "absolute inset-0 bg-gradient-to-b from-[#faf7f2]/10 via-[#faf7f2]/40 to-[#faf7f2]" })
                     ),
-                    React.createElement('div', { className: "relative z-10 p-6 animate-float" },
+                    React.createElement('div', { className: "relative z-10 p-6 flex flex-col items-center animate-float" },
+                        // Foto de los Novios (Portada)
+                        React.createElement('div', { className: "w-56 h-56 md:w-72 md:h-72 rounded-full border-4 border-white shadow-2xl overflow-hidden mb-8 relative" },
+                            React.createElement('div', { className: "absolute inset-0 border-4 border-rose-200/50 rounded-full z-10 m-1" }),
+                            React.createElement('img', { 
+                                src: heroImage, 
+                                alt: "Belén y Kevin", 
+                                className: "w-full h-full object-cover transform hover:scale-105 transition-transform duration-500" 
+                            })
+                        ),
                         React.createElement('p', { className: "font-body tracking-[0.3em] text-sm uppercase mb-4 text-stone-500" }, "¡Nos Casamos!"),
                         React.createElement('h1', { className: "font-script text-7xl md:text-9xl text-stone-800 mb-2 leading-tight" },
                             "Belén ", React.createElement('span', { className: "text-rose-400" }, "&"), " Kevin"
@@ -130,6 +159,7 @@
                 React.createElement('nav', { className: "sticky top-0 z-40 bg-[#faf7f2]/90 backdrop-blur-md shadow-sm border-b border-stone-100 py-4" },
                     React.createElement('div', { className: "flex justify-center space-x-6 md:space-x-12 font-body text-xs md:text-sm uppercase tracking-widest text-stone-500" },
                         React.createElement('button', { onClick: () => document.getElementById('historia').scrollIntoView({behavior: 'smooth'}), className: "hover:text-rose-400 transition-colors" }, "Historia"),
+                        React.createElement('button', { onClick: () => document.getElementById('galeria').scrollIntoView({behavior: 'smooth'}), className: "hover:text-rose-400 transition-colors" }, "Galería"),
                         React.createElement('button', { onClick: () => document.getElementById('detalles').scrollIntoView({behavior: 'smooth'}), className: "hover:text-rose-400 transition-colors" }, "Detalles"),
                         React.createElement('button', { onClick: () => document.getElementById('rsvp').scrollIntoView({behavior: 'smooth'}), className: "hover:text-rose-400 transition-colors font-bold text-rose-500" }, "Confirmar")
                     )
@@ -137,12 +167,71 @@
 
                 React.createElement('main', { className: "max-w-4xl mx-auto px-6 py-12 space-y-24" },
                     
-                    // Historia
+                    // Historia Bíblica
                     React.createElement('section', { id: "historia", className: "text-center space-y-6 scroll-mt-24" },
                         React.createElement('p', { className: "font-serif text-2xl md:text-3xl italic text-stone-600 leading-relaxed max-w-2xl mx-auto" },
                             "\"El amor es paciente, es bondadoso. El amor no tiene envidia, el amor no es jactancioso, no se envanece.\""
                         ),
                         React.createElement('p', { className: "font-body text-xs tracking-widest text-stone-400 uppercase" }, "- 1 Corintios 13:4 -")
+                    ),
+
+                    // NUEVA SECCIÓN: La Pedida de Mano (Lado a Lado)
+                    React.createElement('section', { className: "text-center scroll-mt-24" },
+                        React.createElement('div', { className: "mb-8" },
+                            React.createElement('div', { className: "w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4 text-rose-400" },
+                                // Usamos Gem en lugar de Ring
+                                React.createElement(Gem, { size: 24 }) 
+                            ),
+                            React.createElement('h3', { className: "font-script text-4xl md:text-5xl text-stone-800 mb-2" }, "El Momento del Sí"),
+                        ),
+                        
+                        // Grid para las dos fotos lado a lado con estilo polaroid
+                        React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-3xl mx-auto" },
+                             // Foto Novio con anillo (Izquierda en desktop)
+                             React.createElement('div', { className: "group bg-white p-3 md:p-4 shadow-lg rounded-lg transform md:rotate-[-2deg] hover:rotate-0 transition-all duration-500 hover:z-10 hover:shadow-xl" },
+                                React.createElement('div', { className: "overflow-hidden rounded aspect-[4/5] relative" },
+                                    React.createElement('img', { 
+                                        src: proposalImages.groom, 
+                                        alt: "El novio entregando el anillo",
+                                        className: "w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                                    }),
+                                     React.createElement('div', { className: "absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" })
+                                ),
+                                React.createElement('p', { className: "font-script text-2xl text-stone-600 mt-4" }, "Kevin propone...")
+                            ),
+                            // Foto Novia sorprendida (Derecha en desktop)
+                            React.createElement('div', { className: "group bg-white p-3 md:p-4 shadow-lg rounded-lg transform md:rotate-[2deg] hover:rotate-0 transition-all duration-500 hover:z-10 hover:shadow-xl mt-4 md:mt-0" },
+                                React.createElement('div', { className: "overflow-hidden rounded aspect-[4/5] relative" },
+                                    React.createElement('img', { 
+                                        src: proposalImages.bride, 
+                                        alt: "La novia sorprendida",
+                                        className: "w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                                    }),
+                                    React.createElement('div', { className: "absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" })
+                                ),
+                                React.createElement('p', { className: "font-script text-2xl text-stone-600 mt-4" }, "...y Belén dice ¡Sí!")
+                            )
+                        )
+                    ),
+
+                    // SECCIÓN ACTUALIZADA: Galería de Fotos
+                    React.createElement('section', { id: "galeria", className: "text-center scroll-mt-24 pt-12 border-t border-stone-100" },
+                        React.createElement('h3', { className: "font-script text-5xl text-stone-800 mb-2" }, "Nuestra Historia"),
+                        React.createElement('p', { className: "font-body text-sm uppercase tracking-widest text-rose-400 mb-8" }, "Una historia de amor que Dios inició"),
+                        
+                        // Grid de 4 fotos para la galería
+                        React.createElement('div', { className: "grid grid-cols-2 md:grid-cols-4 gap-4" },
+                            galleryImages.map((src, index) => 
+                                React.createElement('div', { key: index, className: "group relative overflow-hidden rounded-xl shadow-md aspect-square" },
+                                    React.createElement('img', { 
+                                        src: src, 
+                                        alt: `Foto historia ${index + 1}`,
+                                        className: "w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    }),
+                                    React.createElement('div', { className: "absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-500" })
+                                )
+                            )
+                        )
                     ),
 
                     // Cuenta Regresiva
