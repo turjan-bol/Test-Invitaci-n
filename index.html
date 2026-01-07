@@ -50,7 +50,7 @@
     <script type="module">
         import React, { useState, useEffect, useRef } from 'react';
         import { createRoot } from 'react-dom/client';
-        import { Heart, Calendar, MapPin, Music, Clock, Gift, CheckCircle, Navigation, Camera, Gem } from 'lucide-react';
+        import { Heart, Calendar, MapPin, Music, Clock, Gift, CheckCircle, Navigation, Camera, Gem, Volume2, VolumeX } from 'lucide-react';
 
         const WeddingInvitation = () => {
             const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -65,7 +65,7 @@
             // FECHA DE LA BODA
             const weddingDate = new Date("2026-10-24T16:00:00").getTime();
 
-            // URLs de imágenes y música (Rutas relativas para GitHub)
+            // URLs de imágenes y música
             const heroImage = "./portada.png"; 
             const musicUrl = "./audio.mp3";   
             
@@ -100,47 +100,58 @@
                 return () => clearInterval(timer);
             }, []);
 
-            // Efecto para manejar Autoplay Inteligente y Fading
+            // Lógica de Autoplay con Interacción
+            useEffect(() => {
+                const audio = audioRef.current;
+                
+                // Función que intenta reproducir
+                const attemptPlay = () => {
+                    if (audio && audio.paused) {
+                        audio.volume = 0; // Empezar en silencio para fade in
+                        audio.play()
+                            .then(() => {
+                                setIsMusicPlaying(true);
+                                // Una vez que logramos reproducir, ya no necesitamos escuchar clics para esto
+                                document.removeEventListener('click', attemptPlay);
+                                document.removeEventListener('touchstart', attemptPlay);
+                                document.removeEventListener('keydown', attemptPlay);
+                            })
+                            .catch(error => {
+                                console.log("Autoplay aún bloqueado, esperando interacción...", error);
+                            });
+                    }
+                };
+
+                // Intentar inmediatamente
+                attemptPlay();
+
+                // Agregar listeners globales para atrapar el primer clic/toque en cualquier lado
+                document.addEventListener('click', attemptPlay);
+                document.addEventListener('touchstart', attemptPlay); // Crucial para móviles
+                document.addEventListener('keydown', attemptPlay);
+
+                return () => {
+                    document.removeEventListener('click', attemptPlay);
+                    document.removeEventListener('touchstart', attemptPlay);
+                    document.removeEventListener('keydown', attemptPlay);
+                };
+            }, []);
+
+            // Efecto de Fading (Volumen) y Loop
             useEffect(() => {
                 const audio = audioRef.current;
                 if (!audio) return;
 
-                const fadeDuration = 10; // 10 segundos de transición
-
-                // Función para intentar reproducir
-                const tryPlayAudio = () => {
-                    audio.volume = 0; // Iniciar en silencio para el fade in
-                    audio.play().then(() => {
-                        setIsMusicPlaying(true);
-                        // El evento timeupdate manejará la subida de volumen
-                    }).catch(error => {
-                        console.log("Autoplay bloqueado, esperando interacción del usuario...");
-                        // Si falla, agregamos un listener para el primer toque en cualquier lado
-                        const unlockAudio = () => {
-                            audio.volume = 0;
-                            audio.play().then(() => {
-                                setIsMusicPlaying(true);
-                            });
-                            // Limpiamos los listeners una vez activado
-                            document.removeEventListener('click', unlockAudio);
-                            document.removeEventListener('touchstart', unlockAudio);
-                            document.removeEventListener('scroll', unlockAudio);
-                        };
-                        
-                        document.addEventListener('click', unlockAudio);
-                        document.addEventListener('touchstart', unlockAudio);
-                        document.addEventListener('scroll', unlockAudio);
-                    });
-                };
-
-                // Intentar reproducir apenas cargue
-                tryPlayAudio();
+                const fadeDuration = 8; // 8 segundos de fade
 
                 const handleTimeUpdate = () => {
                     const duration = audio.duration;
                     const currentTime = audio.currentTime;
                     
                     if (isNaN(duration)) return;
+
+                    // Si está silenciado (pausado por botón), no tocamos el volumen
+                    if (audio.paused) return;
 
                     // Fade In (Al inicio)
                     if (currentTime < fadeDuration) {
@@ -151,17 +162,16 @@
                         const remaining = duration - currentTime;
                         audio.volume = Math.max(0, remaining / fadeDuration);
                     }
-                    // Volumen normal en el medio
+                    // Volumen normal
                     else {
                         audio.volume = 1;
                     }
                 };
 
-                // Loop Manual
                 const handleEnded = () => {
                     audio.currentTime = 0;
                     audio.volume = 0;
-                    audio.play().catch(e => console.error("Error en loop:", e));
+                    audio.play().catch(e => console.error("Error loop:", e));
                 };
 
                 audio.addEventListener('timeupdate', handleTimeUpdate);
@@ -173,17 +183,17 @@
                 };
             }, []);
 
-            const toggleMusic = () => {
-                if (audioRef.current) {
+            const toggleMute = () => {
+                const audio = audioRef.current;
+                if (audio) {
                     if (isMusicPlaying) {
-                        // Pausar
-                        audioRef.current.pause();
+                        // Si está sonando, lo pausamos (silencio)
+                        audio.pause();
                         setIsMusicPlaying(false);
                     } else {
-                        // Reanudar
-                        audioRef.current.play().then(() => {
-                            setIsMusicPlaying(true);
-                        }).catch(e => console.error("Error al reanudar:", e));
+                        // Si está en silencio, lo reanudamos
+                        audio.play().catch(e => console.log(e));
+                        setIsMusicPlaying(true);
                     }
                 }
             };
@@ -211,14 +221,22 @@
                     preload: "auto"
                 }),
 
-                // Botón Música (Ahora solo alterna icono)
+                // Botón Flotante de Música (Mute/Unmute)
                 React.createElement('button', {
-                    onClick: toggleMusic,
+                    onClick: (e) => {
+                        e.stopPropagation(); // Evitar que este clic dispare el listener global innecesariamente
+                        toggleMute();
+                    },
                     className: `fixed bottom-6 right-6 z-50 p-3 rounded-full shadow-xl transition-all duration-500 ${isMusicPlaying ? 'bg-rose-400 text-white animate-spin-slow' : 'bg-white text-rose-400'}`,
-                    title: isMusicPlaying ? "Silenciar Música" : "Escuchar Música"
-                }, React.createElement(Music, { size: 24 })),
+                    title: isMusicPlaying ? "Silenciar Música" : "Activar Música"
+                }, 
+                    // Cambiamos el icono según el estado
+                    isMusicPlaying 
+                        ? React.createElement(Music, { size: 24 }) 
+                        : React.createElement(VolumeX, { size: 24 })
+                ),
 
-                // Hero Section Modificado con Foto de Portada
+                // Hero Section
                 React.createElement('header', { className: "relative min-h-screen flex flex-col justify-center items-center text-center overflow-hidden py-12" },
                     React.createElement('div', { className: "absolute inset-0 z-0" },
                         React.createElement('img', { 
