@@ -111,13 +111,16 @@
                         audio.play()
                             .then(() => {
                                 setIsMusicPlaying(true);
-                                // Una vez que logramos reproducir, ya no necesitamos escuchar clics para esto
+                                // Una vez que logramos reproducir, removemos TODOS los listeners
                                 document.removeEventListener('click', attemptPlay);
                                 document.removeEventListener('touchstart', attemptPlay);
+                                document.removeEventListener('touchmove', attemptPlay); // Removemos listener de deslizar
+                                document.removeEventListener('scroll', attemptPlay);    // Removemos listener de scroll
                                 document.removeEventListener('keydown', attemptPlay);
                             })
                             .catch(error => {
-                                console.log("Autoplay aún bloqueado, esperando interacción...", error);
+                                // Ignoramos errores silenciosamente mientras esperamos interacción válida
+                                // console.log("Esperando interacción...");
                             });
                     }
                 };
@@ -125,14 +128,18 @@
                 // Intentar inmediatamente
                 attemptPlay();
 
-                // Agregar listeners globales para atrapar el primer clic/toque en cualquier lado
+                // Agregar listeners globales para atrapar CUALQUIER interacción
                 document.addEventListener('click', attemptPlay);
-                document.addEventListener('touchstart', attemptPlay); // Crucial para móviles
+                document.addEventListener('touchstart', attemptPlay); 
+                document.addEventListener('touchmove', attemptPlay); // Detectar movimiento de dedo (scroll táctil)
+                document.addEventListener('scroll', attemptPlay);    // Detectar scroll de ventana
                 document.addEventListener('keydown', attemptPlay);
 
                 return () => {
                     document.removeEventListener('click', attemptPlay);
                     document.removeEventListener('touchstart', attemptPlay);
+                    document.removeEventListener('touchmove', attemptPlay);
+                    document.removeEventListener('scroll', attemptPlay);
                     document.removeEventListener('keydown', attemptPlay);
                 };
             }, []);
